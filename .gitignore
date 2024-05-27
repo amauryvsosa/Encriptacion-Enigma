@@ -4,4 +4,14 @@
 
 /.vs/Enigma
 /Decrypter/bin/Release
+/Decrypter/bin/Release/Enigma.exe
+/Decrypter/bin/Release/Enigma.pdb
+/Decrypter/bin/Debug
+/Decrypter/bin/Debug/Enigma.exe
+/Decrypter/bin/Debug/Enigma.pdb
 /Decrypter/obj/Release
+/Decrypter/obj/Release/Enigma.exe
+/Decrypter/obj/Release/Enigma.pdb
+/Decrypter/obj/Debug
+/Decrypter/obj/Debug/Enigma.exe
+/Decrypter/obj/Debug/Enigma.pdb

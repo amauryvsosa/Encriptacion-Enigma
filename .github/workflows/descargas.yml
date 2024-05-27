@@ -14,16 +14,20 @@ jobs:
     steps:
     - name: Check password
       run: |
-        if [ ${{ github.event.inputs.password }} != "BlueSky14." ]; then
+        if [ "${{ github.event.inputs.password }}" != "tu_contraseña_secreta" ]; then
           echo "Acceso denegado. Contraseña incorrecta."
           exit 1
         fi
 
-    - name: Download assets
+    - name: Get latest release info
+      id: get_release
       run: |
         release_info=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest)
-        assets=$(echo "$release_info" | jq -r '.body | @sh')
+        echo "::set-output name=assets::$(echo "$release_info" | jq -r '.body | @sh')"
+
+    - name: Download assets
+      run: |
+        assets=$(echo "${{ steps.get_release.outputs.assets }}" | tr -d "'" | tr '\n' ' ')
         for asset in $assets; do
-          # Descargar el archivo solo si está en la descripción del release
           wget https://github.com/${{ github.repository }}/releases/download/latest/"$asset"
         done

@@ -341,7 +341,7 @@ namespace Decrypter {
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Principal";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Enigma - Criptografia Italika v1.0.15012024avs";
+            this.Text = "Enigma v2.0.270524avs";
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
             this.ResumeLayout(false);

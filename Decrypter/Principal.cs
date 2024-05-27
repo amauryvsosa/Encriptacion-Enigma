@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Enigma.Apoyo;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
 using static Enigma.Apoyo.Utils;
-using Enigma.Apoyo;
-using System.Collections.Generic;
-using static Enigma.Encriptaciones.Base64;
+using static Enigma.Apoyo.Inactividad;
 using static Enigma.Encriptaciones.AesX;
+using static Enigma.Encriptaciones.Base64;
 using static Enigma.Encriptaciones.Rsa;
 
 namespace Decrypter {
@@ -27,6 +28,8 @@ namespace Decrypter {
         public Principal() {
             InitializeComponent();
             ValidarConfiguracionInicial();
+            CapturarClicks(Controls, UserActivity);
+            IniciarContadorActividad(InactivityTimer_Tick);
         }
 
         #region Metodos de Validacion
@@ -95,7 +98,7 @@ namespace Decrypter {
             // Verificar si ambos están vacíos
             if (string.IsNullOrEmpty(textoEncriptar) && string.IsNullOrEmpty(textoDesencriptar)) {
                 MessageBox.Show("Ambos TextBox están vacíos. Ingrese información para encriptar o desencriptar.",
-                    "Mensaje");
+                    "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
             // Verificar si ambos contienen información
@@ -103,10 +106,11 @@ namespace Decrypter {
                 bool encriptarEsOperacionActiva = ObtenerOperacionActiva();
                 if (contadorMensajesAmbasOperaciones < 3 && contadorMensajesAmbasOperaciones >= 0) {
                     // Muestra un mensaje preguntando si desea realizar la operación de Encriptar
-                    DialogResult decision = MessageBox.Show($"Solo se puede realizar una operación a la vez. Sin embargo, se detecto que intenta {(encriptarEsOperacionActiva ? "Encriptar" : "Desencriptar")} informacion. " +
+                    DialogResult decision = MessageBox.Show($"Solo se puede realizar una operación a la vez. Sin embargo, se detecto que" +
+                        $" intenta {(encriptarEsOperacionActiva ? "Encriptar" : "Desencriptar")} informacion. " +
                         $"¿Desea continuar con la operación?.", "Operación no permitida",
                     MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
+                    MessageBoxIcon.Asterisk);
 
                     contadorMensajesAmbasOperaciones++;
                     return decision == DialogResult.Yes;
@@ -125,6 +129,20 @@ namespace Decrypter {
 
             }
             contadorMensajesAmbasOperaciones = 0;
+
+            int idOperacion = IdentificarOperacion();
+
+            if(idOperacion == 0 && string.IsNullOrEmpty(textoEncriptar)) {
+                MessageBox.Show("Se detecto que se intenta Encriptar informacion.\nPero el respectivo textbox esta vacio.",
+                    "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+            else if(idOperacion == 1 && string.IsNullOrEmpty(textoDesencriptar)) {
+                MessageBox.Show("Se detecto que se intenta Desencriptar informacion.\nPero el respectivo textbox esta vacio.",
+                    "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
             return true;
         }
 
@@ -319,9 +337,21 @@ namespace Decrypter {
                 case 1:
                 return Codifica(dato);
                 case 2:
-                return Codifica(informacion[indice - 1].Propiedades.LlaveEncriptado, dato);
+                if (!string.IsNullOrEmpty(textBoxLlaveEncriPrivada.Text.Trim())) {
+                    return Codifica(textBoxLlaveEncriPrivada.Text.Trim(), dato);
+                } else {
+                    MessageBox.Show("La llave encriptado no puede estar vacia", "Error en llave", MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                return string.Empty;
                 case 3:
-                return Codifica(dato, LongitudElegida, textBoxLlavePublica.Text.Trim(), TipoCifrado);
+                    if(!string.IsNullOrEmpty(textBoxLlavePublica.Text.Trim())) {
+                        return Codifica(dato, LongitudElegida, textBoxLlavePublica.Text.Trim(), TipoCifrado);
+                    } else {
+                        MessageBox.Show("La llave publica no puede estar vacia", "Error en llave", MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                    }
+                    return string.Empty;
                 default:
                 return default;
 
@@ -333,9 +363,21 @@ namespace Decrypter {
                 case 1:
                 return Descodifica<string>(datoCodificado);
                 case 2:
-                return Descodifica(informacion[indice - 1].Propiedades.LlaveEncriptado, datoCodificado);
+                if (!string.IsNullOrEmpty(textBoxLlaveEncriPrivada.Text.Trim())) {
+                    return Descodifica(textBoxLlaveEncriPrivada.Text.Trim(), datoCodificado);
+                } else {
+                    MessageBox.Show("La llave encriptado no puede estar vacia", "Error en llave", MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                return string.Empty;
                 case 3:
-                return Descodifica(datoCodificado, LongitudElegida, textBoxLlaveEncriPrivada.Text.Trim(), TipoCifrado);
+                if (!string.IsNullOrEmpty(textBoxLlaveEncriPrivada.Text.Trim())) {
+                    return Descodifica(datoCodificado, LongitudElegida, textBoxLlaveEncriPrivada.Text.Trim(), TipoCifrado);
+                } else {
+                    MessageBox.Show("La llave privada no puede estar vacia", "Error en llave", MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                return string.Empty;
                 default:
                 return default;
             }
@@ -435,6 +477,25 @@ namespace Decrypter {
         private void textBoxLlaveEncriPrivada_Leave(object sender, EventArgs e) {
             if (!textBoxLlavePublica.Visible) {
                 textBoxLlaveEncriPrivada.ReadOnly = true;
+            }
+        }
+
+        private void UserActivity(object sender, EventArgs e) {
+            TiempoInactividad.Stop();
+            TiempoInactividad.Start();
+        }
+
+        private void InactivityTimer_Tick(object sender, EventArgs e) {
+            TiempoInactividad.Stop();
+
+            DialogResult resultadoDecisionInactividad = MessageBox.Show("No se han realizado operaciones en 5 minutos.\n" +
+                "¿Desea cerrar el programa?", "Inactividad Detectada", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if(resultadoDecisionInactividad == DialogResult.Yes) {
+                Application.Exit();
+            }
+            else {
+                TiempoInactividad.Start();
             }
         }
     }

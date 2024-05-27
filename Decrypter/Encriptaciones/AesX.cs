@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Enigma.Encriptaciones {
     public static class AesX {
@@ -44,39 +43,45 @@ namespace Enigma.Encriptaciones {
         }
 
         public static string Descodifica(string llaveEncriptado, string datoEncriptado) {
-            // Convertimos la cadena codificada en base64 en un arreglo de bytes
-            byte[] datosCodificados = Convert.FromBase64String(datoEncriptado);
+            try {
+                // Convertimos la cadena codificada en base64 en un arreglo de bytes
+                byte[] datosCodificados = Convert.FromBase64String(datoEncriptado);
 
-            // Extraemos el vector de inicialización (IV) que está en los primeros 16 bytes
-            byte[] iv = new byte[16];
-            byte[] datosCifrados = new byte[datosCodificados.Length - iv.Length];
-            Buffer.BlockCopy(datosCodificados, 0, iv, 0, iv.Length);
-            Buffer.BlockCopy(datosCodificados, iv.Length, datosCifrados, 0, datosCodificados.Length - iv.Length);
+                // Extraemos el vector de inicialización (IV) que está en los primeros 16 bytes
+                byte[] iv = new byte[16];
+                byte[] datosCifrados = new byte[datosCodificados.Length - iv.Length];
+                Buffer.BlockCopy(datosCodificados, 0, iv, 0, iv.Length);
+                Buffer.BlockCopy(datosCodificados, iv.Length, datosCifrados, 0, datosCodificados.Length - iv.Length);
 
-            // Obtenemos la clave de cifrado convertida a bytes
-            byte[] clave = Encoding.UTF8.GetBytes(llaveEncriptado);
+                // Obtenemos la clave de cifrado convertida a bytes
+                byte[] clave = Encoding.UTF8.GetBytes(llaveEncriptado);
 
-            using (Aes aes = Aes.Create()) {
-                aes.KeySize = 256;
-                aes.Key = clave;
-                aes.IV = iv; // Usamos el IV extraído de los datos cifrados
+                using (Aes aes = Aes.Create()) {
+                    aes.KeySize = 256;
+                    aes.Key = clave;
+                    aes.IV = iv; // Usamos el IV extraído de los datos cifrados
 
-                // Creamos un objeto para desencriptar
-                using (ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV)) {
-                    using (MemoryStream memoryStream = new MemoryStream(datosCifrados)) {
-                        using (CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read)) {
-                            using (StreamReader streamReader = new StreamReader(cryptoStream)) {
-                                try {
-                                    // Leemos todos los datos desencriptados
-                                    return streamReader.ReadToEnd();
-                                } catch (Exception ex) {
-                                    // Manejar la excepción o registrarla si es necesario
-                                    return null;
+                    // Creamos un objeto para desencriptar
+                    using (ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV)) {
+                        using (MemoryStream memoryStream = new MemoryStream(datosCifrados)) {
+                            using (CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read)) {
+                                using (StreamReader streamReader = new StreamReader(cryptoStream)) {
+                                    try {
+                                        // Leemos todos los datos desencriptados
+                                        return streamReader.ReadToEnd();
+                                    } catch (Exception) {
+                                        // Manejar la excepción o registrarla si es necesario
+                                        return string.Empty;
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            } catch (Exception excepcion) when (excepcion is FormatException || excepcion is OverflowException) {
+                MessageBox.Show("Ha ocurrido un error al Desencriptar, debido a que la cadena encriptada no es valida.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return string.Empty;
             }
         }
     }

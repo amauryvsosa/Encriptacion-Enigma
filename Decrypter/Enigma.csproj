@@ -66,6 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Apoyo\Inactividad.cs" />
     <Compile Include="Apoyo\JsonConfiguracion.cs" />
     <Compile Include="Apoyo\Utils.cs" />
     <Compile Include="Encriptaciones\AesX.cs" />

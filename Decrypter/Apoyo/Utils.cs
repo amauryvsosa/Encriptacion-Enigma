@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Enigma.Apoyo {
@@ -152,35 +150,35 @@ namespace Enigma.Apoyo {
 
             switch (indice) {
                 case 1:
-                    //Encriptacion Normal
+                //Encriptacion Normal
 
-                    panel.SetRowSpan(textBoxEncriptar, 3);
+                panel.SetRowSpan(textBoxEncriptar, 3);
                 break;
                 case 2:
-                    if(textBoxLlaveEncriptacion == null) {
-                        textBoxLlaveEncriptacion = panel.Controls.Find("textBoxLlaveEncriPrivada", true)[0];
-                    }
+                if (textBoxLlaveEncriptacion == null) {
+                    textBoxLlaveEncriptacion = panel.Controls.Find("textBoxLlaveEncriPrivada", true)[0];
+                }
 
-                    labelTitulo.Text = "Llave Encriptado";
+                labelTitulo.Text = "Llave Encriptado";
 
-                    LlenarTextBox(textBoxLlaveEncriptacion, elementos[indice - 1].Propiedades.LlaveEncriptado);
+                LlenarTextBox(textBoxLlaveEncriptacion, elementos[indice - 1].Propiedades.LlaveEncriptado);
 
-                    labelTitulo.Visible = true;
-                    textBoxLlaveEncriptacion.Visible = true;
-                    ((TextBox)textBoxLlaveEncriptacion).ReadOnly = true;
+                labelTitulo.Visible = true;
+                textBoxLlaveEncriptacion.Visible = true;
+                ((TextBox)textBoxLlaveEncriptacion).ReadOnly = true;
                 break;
                 case 3:
-                    Control textBoxLlavePublica = controles.Find(control => control.Name == "textBoxLlavePublica");
+                Control textBoxLlavePublica = controles.Find(control => control.Name == "textBoxLlavePublica");
 
-                    labelTitulo.Text = "Llave Privada";
+                labelTitulo.Text = "Llave Privada";
 
-                    LlenarTextBox(textBoxLlavePublica, elementos[indice - 1].Propiedades.LlavePublica);
-                    LlenarTextBox(textBoxLlaveEncriptacion, elementos[indice - 1].Propiedades.LlavePrivada);
+                LlenarTextBox(textBoxLlavePublica, elementos[indice - 1].Propiedades.LlavePublica);
+                LlenarTextBox(textBoxLlaveEncriptacion, elementos[indice - 1].Propiedades.LlavePrivada);
 
-                    OcultarMostarElementosEspeciales(controles, true);
+                OcultarMostarElementosEspeciales(controles, true);
 
-                    ((TextBox)textBoxLlavePublica).ReadOnly = false;
-                    ((TextBox)textBoxLlaveEncriptacion).ReadOnly = false;
+                ((TextBox)textBoxLlavePublica).ReadOnly = false;
+                ((TextBox)textBoxLlaveEncriptacion).ReadOnly = false;
                 break;
             }
         }

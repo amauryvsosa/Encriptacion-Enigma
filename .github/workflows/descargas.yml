@@ -1,0 +1,29 @@
+name: Secure Asset Download
+
+on:
+  workflow_dispatch:
+    inputs:
+      password:
+        description: 'Enter the password:'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check password
+      run: |
+        if [ ${{ github.event.inputs.password }} != "BlueSky14." ]; then
+          echo "Acceso denegado. Contraseña incorrecta."
+          exit 1
+        fi
+
+    - name: Download assets
+      run: |
+        release_info=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest)
+        assets=$(echo "$release_info" | jq -r '.body | @sh')
+        for asset in $assets; do
+          # Descargar el archivo solo si está en la descripción del release
+          wget https://github.com/${{ github.repository }}/releases/download/latest/"$asset"
+        done

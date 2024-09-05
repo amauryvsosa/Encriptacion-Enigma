@@ -36,9 +36,16 @@ namespace Enigma.Apoyo {
                 }
             };
 
+            DatosEncriptacion BloqueBits = new DatosEncriptacion {
+                Nombre = "BloqueDeBits",
+                NombreComun = "Encriptacion Url",
+                Id = 1
+            };
+
             primerJson.EncriptacionesDisponibles.Add(Base64);
             primerJson.EncriptacionesDisponibles.Add(Aes);
             primerJson.EncriptacionesDisponibles.Add(Rsa);
+            primerJson.EncriptacionesDisponibles.Add(BloqueBits);
         }
 
         public JsonConfiguracion ObtenerJsonBienvenida() {

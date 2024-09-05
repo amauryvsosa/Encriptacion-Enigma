@@ -69,9 +69,28 @@
     <Compile Include="Apoyo\Inactividad.cs" />
     <Compile Include="Apoyo\JsonConfiguracion.cs" />
     <Compile Include="Apoyo\Utils.cs" />
-    <Compile Include="Encriptaciones\AesX.cs" />
-    <Compile Include="Encriptaciones\Base64.cs" />
-    <Compile Include="Encriptaciones\Rsa.cs" />
+    <Compile Include="Controlador\ControladorAes.cs" />
+    <Compile Include="Controlador\ControladorBase64.cs" />
+    <Compile Include="Controlador\ControladorBloqueDeBits.cs" />
+    <Compile Include="Controlador\ControladorRsa.cs" />
+    <Compile Include="Modelo\Operaciones.cs" />
+    <Compile Include="Modelo\Validaciones.cs" />
+    <Compile Include="Vista\DiseñoAes.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Vista\DiseñoAes.Designer.cs">
+      <DependentUpon>DiseñoAes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Vista\DiseñoBase64.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Vista\DiseñoBase64.Designer.cs">
+      <DependentUpon>DiseñoBase64.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Modelo\Encriptaciones\AesX.cs" />
+    <Compile Include="Modelo\Encriptaciones\Base64.cs" />
+    <Compile Include="Modelo\Encriptaciones\BloqueDeBits.cs" />
+    <Compile Include="Modelo\Encriptaciones\Rsa.cs" />
     <Compile Include="Principal.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -86,6 +105,30 @@
     <Compile Include="Propiedades.Designer.cs">
       <DependentUpon>Propiedades.cs</DependentUpon>
     </Compile>
+    <Compile Include="Vista\DiseñoBloqueBits.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Vista\DiseñoBloqueBits.Designer.cs">
+      <DependentUpon>DiseñoBloqueBits.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Vista\DiseñoRsa.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Vista\DiseñoRsa.Designer.cs">
+      <DependentUpon>DiseñoRsa.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Vista\Mensajes\Mensaje.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Vista\Mensajes\Mensaje.Designer.cs">
+      <DependentUpon>Mensaje.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Vista\DiseñoAes.resx">
+      <DependentUpon>DiseñoAes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Vista\DiseñoBase64.resx">
+      <DependentUpon>DiseñoBase64.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Principal.resx">
       <DependentUpon>Principal.cs</DependentUpon>
     </EmbeddedResource>
@@ -99,6 +142,15 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Vista\DiseñoBloqueBits.resx">
+      <DependentUpon>DiseñoBloqueBits.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Vista\DiseñoRsa.resx">
+      <DependentUpon>DiseñoRsa.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Vista\Mensajes\Mensaje.resx">
+      <DependentUpon>Mensaje.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

@@ -8,37 +8,43 @@ namespace Enigma.Encriptaciones {
     public static class AesX {
 
         public static string Codifica(string llaveEncriptado, object dato) {
-            // Convertimos la llave de encriptación obtenida a un arreglo de bytes.
-            byte[] bytesClave = Encoding.UTF8.GetBytes(llaveEncriptado);
+            try {
+                // Convertimos la llave de encriptación obtenida a un arreglo de bytes.
+                byte[] bytesClave = Encoding.UTF8.GetBytes(llaveEncriptado);
 
-            using (Aes aes = Aes.Create()) {
-                aes.KeySize = 256;  // Configuramos el tamaño de la clave a 256 bits.
-                aes.Key = bytesClave; // Asignamos la clave de cifrado.
-                aes.IV = new byte[16]; // Inicializamos el vector de inicialización (IV) con ceros.
+                using (Aes aes = Aes.Create()) {
+                    aes.KeySize = 256;  // Configuramos el tamaño de la clave a 256 bits.
+                    aes.Key = bytesClave; // Asignamos la clave de cifrado.
+                    aes.IV = new byte[16]; // Inicializamos el vector de inicialización (IV) con ceros.
 
-                // Creamos un encriptador con la clave y el IV.
-                using (ICryptoTransform encriptador = aes.CreateEncryptor(aes.Key, aes.IV)) {
-                    using (MemoryStream memoriaStream = new MemoryStream()) {
-                        using (CryptoStream cryptoStream = new CryptoStream(memoriaStream, encriptador, CryptoStreamMode.Write)) {
-                            using (StreamWriter escritorStream = new StreamWriter(cryptoStream)) {
-                                // Escribimos los datos a encriptar en el stream.
-                                escritorStream.Write(dato);
+                    // Creamos un encriptador con la clave y el IV.
+                    using (ICryptoTransform encriptador = aes.CreateEncryptor(aes.Key, aes.IV)) {
+                        using (MemoryStream memoriaStream = new MemoryStream()) {
+                            using (CryptoStream cryptoStream = new CryptoStream(memoriaStream, encriptador, CryptoStreamMode.Write)) {
+                                using (StreamWriter escritorStream = new StreamWriter(cryptoStream)) {
+                                    // Escribimos los datos a encriptar en el stream.
+                                    escritorStream.Write(dato);
+                                }
+
+                                // Obtenemos el IV y los datos encriptados del stream.
+                                byte[] iv = aes.IV;
+                                byte[] datosEncriptados = memoriaStream.ToArray();
+                                byte[] resultado = new byte[iv.Length + datosEncriptados.Length];
+
+                                // Copiamos el IV y los datos encriptados en el arreglo resultado.
+                                Buffer.BlockCopy(iv, 0, resultado, 0, iv.Length);
+                                Buffer.BlockCopy(datosEncriptados, 0, resultado, iv.Length, datosEncriptados.Length);
+
+                                // Convertimos el resultado a una cadena en base64 y lo retornamos.
+                                return Convert.ToBase64String(resultado);
                             }
-
-                            // Obtenemos el IV y los datos encriptados del stream.
-                            byte[] iv = aes.IV;
-                            byte[] datosEncriptados = memoriaStream.ToArray();
-                            byte[] resultado = new byte[iv.Length + datosEncriptados.Length];
-
-                            // Copiamos el IV y los datos encriptados en el arreglo resultado.
-                            Buffer.BlockCopy(iv, 0, resultado, 0, iv.Length);
-                            Buffer.BlockCopy(datosEncriptados, 0, resultado, iv.Length, datosEncriptados.Length);
-
-                            // Convertimos el resultado a una cadena en base64 y lo retornamos.
-                            return Convert.ToBase64String(resultado);
                         }
                     }
                 }
+            } catch (CryptographicException) {
+                MessageBox.Show("Ha ocurrido un error al Encriptar, debido a que la Llave Encriptado no es valida.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return string.Empty;
             }
         }
 
@@ -80,6 +86,10 @@ namespace Enigma.Encriptaciones {
                 }
             } catch (Exception excepcion) when (excepcion is FormatException || excepcion is OverflowException) {
                 MessageBox.Show("Ha ocurrido un error al Desencriptar, debido a que la cadena encriptada no es valida.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return string.Empty;
+            } catch (CryptographicException) {
+                MessageBox.Show("Ha ocurrido un error al Desencriptar, debido a que la Llave Encriptado no es valida.",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return string.Empty;
             }

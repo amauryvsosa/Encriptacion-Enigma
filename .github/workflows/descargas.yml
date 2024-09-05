@@ -1,0 +1,33 @@
+name: Secure Asset Download
+
+on:
+  workflow_dispatch:
+    inputs:
+      password:
+        description: 'Enter the password:'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check password
+      run: |
+        if [ "${{ github.event.inputs.password }}" != "tu_contraseña_secreta" ]; then
+          echo "Acceso denegado. Contraseña incorrecta."
+          exit 1
+        fi
+
+    - name: Get latest release info
+      id: get_release
+      run: |
+        release_info=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest)
+        echo "::set-output name=assets::$(echo "$release_info" | jq -r '.body | @sh')"
+
+    - name: Download assets
+      run: |
+        assets=$(echo "${{ steps.get_release.outputs.assets }}" | tr -d "'" | tr '\n' ' ')
+        for asset in $assets; do
+          wget https://github.com/${{ github.repository }}/releases/download/latest/"$asset"
+        done
